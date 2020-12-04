@@ -7,11 +7,11 @@
 # Docs: https://github.com/microsoft/vscode-dev-containers/blob/master/script-library/docs/terraform.md
 #
 # Syntax: ./terraform-debian.sh [terraform version] [tflint version]
+set -euo pipefail
 
 TERRAFORM_VERSION=${1:-"latest"}
-TFLINT_VERSION=${2:-"latest"}
-
-set -e
+TERRAFORM_VERSIONS=${2:-"latest"}
+TFLINT_VERSION=${3:-"latest"}
 
 if [ "$(id -u)" -ne 0 ]; then
     echo -e 'Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script.'
@@ -20,6 +20,10 @@ fi
 
 if [ "${TERRAFORM_VERSION}" = "latest" ] || [ "${TERRAFORM_VERSION}" = "lts" ] || [ "${TERRAFORM_VERSION}" = "current" ]; then
     TERRAFORM_VERSION=$(curl -sSL https://releases.hashicorp.com/terraform/ | grep -m1 -oE '>terraform_[0-9]+\.[0-9]+\.[0-9]+<' | sed 's/^>terraform_\(.*\)<$/\1/')
+fi
+
+if [ "${TERRAFORM_VERSIONS}" = "latest" ] || [ "${TERRAFORM_VERSIONS}" = "lts" ] || [ "${TERRAFORM_VERSIONS}" = "current" ]; then
+    TERRAFORM_VERSIONS="${TERRAFORM_VERSION}"
 fi
 
 if [ "${TFLINT_VERSION}" = "latest" ] || [ "${TFLINT_VERSION}" = "lts" ] || [ "${TFLINT_VERSION}" = "current" ]; then
@@ -39,9 +43,18 @@ fi
 # Install Terraform, tflint
 echo "Downloading terraform..."
 mkdir -p /tmp/tf-downloads
-curl -sSL -o /tmp/tf-downloads/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-unzip /tmp/tf-downloads/terraform.zip
-mv -f terraform /usr/local/bin/
+for v in $TERRAFORM_VERSIONS
+do
+    dl="/tmp/tf-downloads/${v}"
+    mkdir -p "${dl}"
+    curl -sSL -o ${dl}/terraform.zip https://releases.hashicorp.com/terraform/${v}/terraform_${v}_linux_amd64.zip
+    unzip ${dl}/terraform.zip
+    mv -f terraform /usr/local/bin/terraform-${v}
+done
+
+# set default terraform version
+ln -s /usr/local/bin/terraform-${TERRAFORM_VERSION} /usr/local/bin/terraform
+
 
 if [ "${TFLINT_VERSION}" != "none" ]; then
     echo "Downloading tflint..."
