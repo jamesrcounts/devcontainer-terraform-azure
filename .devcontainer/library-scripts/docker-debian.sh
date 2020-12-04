@@ -7,13 +7,13 @@
 # Docs: https://github.com/microsoft/vscode-dev-containers/blob/master/script-library/docs/docker.md
 #
 # Syntax: ./docker-debian.sh [enable non-root docker socket access flag] [source socket] [target socket] [non-root user]
+set -euox pipefail
 
 ENABLE_NONROOT_DOCKER=${1:-"true"}
 SOURCE_SOCKET=${2:-"/var/run/docker-host.sock"}
 TARGET_SOCKET=${3:-"/var/run/docker.sock"}
 USERNAME=${4:-"automatic"}
-
-set -e
+COMPOSE_VERSION=${5:-"1.27.4"}
 
 if [ "$(id -u)" -ne 0 ]; then
     echo -e 'Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script.'
@@ -71,9 +71,7 @@ fi
 if type docker-compose > /dev/null 2>&1; then
     echo "Docker Compose already installed."
 else
-
-    LATEST_COMPOSE_VERSION=$(curl -sSL "https://api.github.com/repos/docker/compose/releases/latest" | grep -o -P '(?<="tag_name": ").+(?=")')
-    curl -sSL "https://github.com/docker/compose/releases/download/${LATEST_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    curl -sSL "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
 fi
 
