@@ -50,6 +50,9 @@ COPY library-scripts/terraform-debian.sh  /tmp/library-scripts/
 RUN bash /tmp/library-scripts/terraform-debian.sh "${TERRAFORM_VERSION}" "${TERRAFORM_VERSIONS}" "${TFLINT_VERSION}" \
     && rm -rf /tmp/library-scripts
 
+# Some people have git config pointed at a different gpg location
+RUN ln -s /usr/bin/gpg /usr/local/bin/gpg
+
 ENTRYPOINT [ "/usr/local/share/docker-init.sh" ]
 CMD [ "sleep", "infinity" ]
 
