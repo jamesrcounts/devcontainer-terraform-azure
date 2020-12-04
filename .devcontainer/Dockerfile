@@ -35,7 +35,7 @@ COPY library-scripts/node-debian.sh /tmp/library-scripts/
 RUN if [ "${INSTALL_NODE}" = "true" ]; then bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}"; fi
 
 COPY library-scripts/docker-debian.sh  /tmp/library-scripts/
-RUN set -x; if [ "${INSTALL_DOCKER}" = "true" ]; then \
+RUN if [ "${INSTALL_DOCKER}" = "true" ]; then \
         bash /tmp/library-scripts/docker-debian.sh "true" "/var/run/docker-host.sock" "/var/run/docker.sock" "${USERNAME}"; \
     else \
         echo '#!/bin/bash\n"$@"' > /usr/local/share/docker-init.sh && chmod +x /usr/local/share/docker-init.sh; \
