@@ -2,7 +2,7 @@ locals {
   project = "tfaz"
 
   tags = {
-    Environment = "Test"
+    project = local.project
   }
 }
 
