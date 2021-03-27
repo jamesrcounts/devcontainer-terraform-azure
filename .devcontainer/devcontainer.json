@@ -3,7 +3,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": { 
-			"TERRAFORM_VERSIONS": "0.13.5 0.14.7",
+			"TERRAFORM_VERSIONS": "0.14.9",
 			"TERRAFORM_VERSION": "0.14.7",
 			"TFLINT_VERSION": "0.18.0",
 			"INSTALL_AZURE_CLI": "true",
